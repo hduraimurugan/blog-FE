@@ -16,29 +16,8 @@ export const AuthProvider = ({ children }) => {
       setUser(res.data.user)
       localStorage.setItem('user', JSON.stringify(res.data.user))
     } catch (err) {
-      if (err.response?.status === 401 || err.response?.status === 403) {
-        console.log('Access token expired. Attempting refresh...')
-
-        try {
-          // Try refresh token
-          await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`, {}, {
-            withCredentials: true,
-          })
-
-          // Retry fetch after refresh
-          const retryRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/auth/me`, {
-            withCredentials: true,
-          })
-          setUser(retryRes.data.user)
-          localStorage.setItem('user', JSON.stringify(retryRes.data.user))
-        } catch (refreshErr) {
-          console.error('Token refresh failed:', refreshErr)
-          setUser(null)
-          localStorage.removeItem('user')
-        }
-      } else {
         console.error('Fetch user error:', err)
-      }
+      
     } finally {
       setLoading(false)
     }

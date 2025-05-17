@@ -1,15 +1,21 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Search, Menu, X, User, LogOut, PenSquare, Home, Bookmark, Bell } from 'lucide-react';
+import axios from 'axios';
+import { backendUrl } from '../api/config';
 
 export const Layout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false)
   const [pageTitle, setPageTitle] = useState('Blog');
-  const [searchValue, setSearchValue] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
+  const [blogs, setBlogs] = useState([])
 
   useEffect(() => {
     const path = location.pathname;
@@ -21,10 +27,40 @@ export const Layout = () => {
     else setPageTitle('');
   }, [location.pathname]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  const fetchBlogs = async (search) => {
+    try {
+      setLoading(true)
+      const response = await axios.get(`${backendUrl}/api/blog/get`, {
+        params: {
+          search: search || undefined,
+        },
+        withCredentials: true,
+      })
+      const newBlogs = response.data.data
+      setBlogs(newBlogs)
+    } catch (error) {
+      console.error("Error fetching blogs:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBlogs(debouncedSearchQuery)
+  }, [debouncedSearchQuery])
+
+
   const handleSearch = (e) => {
     e.preventDefault();
-    // Implement blog search
-    console.log('Searching blog for:', searchValue);
+    console.log('Searching blog for:', searchQuery);
   };
 
   const toggleMobileMenu = () => {
@@ -81,14 +117,14 @@ export const Layout = () => {
 
             {/* Search Bar (Desktop) */}
             <div className="hidden lg:flex flex-1 max-w-md mx-6">
-              <form onSubmit={handleSearch} className="w-full">
+              <div className="w-full">
                 <div className="relative">
                   <input
                     type="text"
                     placeholder="Search articles..."
                     className="w-full bg-gray-100 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
-                    value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                   <button
                     type="submit"
@@ -96,15 +132,36 @@ export const Layout = () => {
                   >
                     <Search size={16} />
                   </button>
+
+                  {searchQuery.trim() !== "" && (
+                    <div className="absolute z-10 mt-2 w-full bg-white rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {loading ? (
+                        <div className="p-2 text-sm text-gray-500">Loading...</div>
+                      ) : blogs.length > 0 ? (
+                        blogs.map((blog) => (
+                          <div
+                            key={blog._id}
+                            onClick={() => navigate(`/blog/${blog._id}`)}
+                            className="px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 cursor-pointer"
+                          >
+                            {blog.title}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-gray-500">No Blogs Found</div>
+                      )}
+                    </div>
+                  )}
+
                 </div>
-              </form>
+              </div>
             </div>
 
             {/* Right Navigation Items */}
             <div className="flex items-center">
               {/* Mobile Search Toggle */}
               <button
-                className="lg:hidden p-2 mr-2 text-gray-600 hover:text-blue-600 focus:outline-none"
+                className="p-2 mr-2 text-gray-600 hover:text-blue-600 focus:outline-none"
                 onClick={toggleSearchBar}
               >
                 <Search size={20} />
@@ -177,15 +234,15 @@ export const Layout = () => {
 
           {/* Mobile Search Bar */}
           {showSearch && (
-            <div className="md:hidden py-2 px-2">
-              <form onSubmit={handleSearch} className="w-full">
+            <div className="py-2 px-2">
+              <div className="w-full">
                 <div className="relative">
                   <input
                     type="text"
                     placeholder="Search articles..."
                     className="w-full bg-gray-100 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
-                    value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                   <button
                     type="submit"
@@ -193,8 +250,28 @@ export const Layout = () => {
                   >
                     <Search size={16} />
                   </button>
+
+                   {searchQuery.trim() !== "" && (
+                    <div className="absolute z-10 mt-2 w-full bg-white rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {loading ? (
+                        <div className="p-2 text-sm text-gray-500">Loading...</div>
+                      ) : blogs.length > 0 ? (
+                        blogs.map((blog) => (
+                          <div
+                            key={blog._id}
+                            onClick={() => navigate(`/blog/${blog._id}`)}
+                            className="px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 cursor-pointer"
+                          >
+                            {blog.title}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-gray-500">No Blogs Found</div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </form>
+              </div>
             </div>
           )}
 
@@ -235,51 +312,48 @@ export const Layout = () => {
       </nav>
 
       {/* Hero Section: Only on Home Page */}
-      {location.pathname === '/' ? (
-        <section className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white py-16">
-          <div className="container mx-auto px-4 md:px-6 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              {pageTitle}
-            </h1>
-            <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
-              Discover thought-provoking articles, expert opinions, and the latest trends.
-            </p>
+      <div className=''>
+        {location.pathname === '/' ? (
+          <section className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white py-16">
+            <div className="container mx-auto px-4 md:px-6 text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                {pageTitle}
+              </h1>
+              <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
+                Discover thought-provoking articles, expert opinions, and the latest trends.
+              </p>
 
-            {/* Only show Call-to-Action if user is not logged in */}
-            {!user && (
-              <div className="flex justify-center flex-wrap gap-4">
-                <Link
-                  to="/login"
-                  className="px-6 py-3 bg-white text-blue-700 font-medium rounded-full hover:bg-blue-50 transition-colors"
-                >
-                  Join Our Community
-                </Link>
-                <Link
-                  to="/learn-more"
-                  className="px-6 py-3 border border-white text-white font-medium rounded-full hover:bg-white hover:bg-opacity-10 transition-colors"
-                >
-                  Learn More
-                </Link>
-              </div>
-            )}
-          </div>
-        </section>
-      ) : (location.pathname === '/login' || isBlogRoute) ? (
-        <section className="">
-        </section>
-      ) : (
-        // Non-Home Page Title Section
-        <section className="bg-white border-b border-gray-200">
-          <div className="container mx-auto px-4 md:px-6 py-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{pageTitle}</h1>
+              {!user && (
+                <div className="flex justify-center flex-wrap gap-4">
+                  <Link
+                    to="/login"
+                    className="px-6 py-3 bg-white text-blue-700 font-medium rounded-full hover:bg-blue-50 transition-colors"
+                  >
+                    Join Our Community
+                  </Link>
+                  <Link
+                    to="/learn-more"
+                    className="px-6 py-3 border border-white text-white font-medium rounded-full hover:bg-white hover:bg-opacity-10 transition-colors"
+                  >
+                    Learn More
+                  </Link>
+                </div>
+              )}
+            </div>
+          </section>
+        ) : (location.pathname === '/login' || isBlogRoute) ? (
+          <section className="">
+          </section>
+        ) : (
+          // Non-Home Page Title Section
+          <section className="">
+            {/* <div className="container mx-auto px-4 md:px-6 py-8">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{pageTitle}</h1>
 
-            {/* Optional Subtext for specific routes */}
-            {location.pathname.includes('/categories') && (
-              <p className="text-gray-600 mt-2">Explore articles by topics that interest you.</p>
-            )}
-          </div>
-        </section>
-      )}
+            </div> */}
+          </section>
+        )}
+      </div>
 
 
       {/* Main Content */}

@@ -1,310 +1,329 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { throttle } from 'lodash';
-import { backendUrl } from '../api/config';
-import { BsThreeDotsVertical } from "react-icons/bs";
-import DOMPurify from 'dompurify'; // Import DOMPurify for sanitization
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { useEffect, useState } from "react"
+import axios from "axios"
+import { throttle } from "lodash"
+import DOMPurify from "dompurify"
+import { Search, MoreVertical, Edit, Trash, Share2, Loader2 } from "lucide-react"
+import { backendUrl } from '../api/config'
+import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 
-const BlogsPage = () => {
-  const navigate = useNavigate();
-  const [blogs, setBlogs] = useState([]);
-  const { user } = useAuth();
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [author, setAuthor] = useState('');
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [blogToDeleteId, setBlogToDeleteId] = useState(null);
-  const { showToast } = useToast();
+export default function BlogsPage() {
+  const { user } = useAuth()
+  const { showToast } = useToast()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
+  const [blogs, setBlogs] = useState([])
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState("All")
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [blogToDeleteId, setBlogToDeleteId] = useState(null)
 
-  const categories = ['All', 'Tech', 'Health', 'Travel', 'Finance', 'Lifestyle'];
+  const categories = ["All", "Technology", "Health", "Travel", "Finance", "Lifestyle"]
 
-  const fetchBlogs = async (category, page) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  const fetchBlogs = async (category, pageToFetch, search) => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await axios.get(`${backendUrl}/api/blog/get`, {
         params: {
-          category: category !== 'All' ? category : undefined,
-          page,
+          category: category !== "All" ? category : undefined,
+          page: pageToFetch,
           limit: 6,
-          author: author ? author : undefined,
+          search: search || undefined,
         },
         withCredentials: true,
-      });
+      })
 
-      const newBlogs = response.data.data;
+      const newBlogs = response.data.data
       const uniqueNewBlogs = newBlogs.filter(
-        (newBlog) => !blogs.some((existingBlog) => existingBlog._id === newBlog._id)
-      );
+        (newBlog) => !blogs.some((existingBlog) => existingBlog._id === newBlog._id),
+      )
 
       if (newBlogs.length === 0 || uniqueNewBlogs.length === 0) {
-        setHasMore(false);
+        setHasMore(false)
       }
 
-      setBlogs((prevBlogs) => [...prevBlogs, ...uniqueNewBlogs]);
-      setLoading(false);
+      if (pageToFetch === 1) {
+        setBlogs(newBlogs)
+      } else {
+        setBlogs((prevBlogs) => [...prevBlogs, ...uniqueNewBlogs])
+      }
     } catch (error) {
-      console.error('Error fetching blogs:', error);
-      setLoading(false);
+      console.error("Error fetching blogs:", error)
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${backendUrl}/api/blog/delete/${id}`, {
         withCredentials: true,
-      });
-      setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== id));
-      showToast('Blog deleted successfully', 'success');
-
+      })
+      setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== id))
+      showToast("Blog deleted successfully", "success")
     } catch (error) {
-      console.error('Error deleting blog:', error);
+      console.error("Error deleting blog:", error)
+      showToast("Failed to delete blog", "error")
     }
-  };
-
- const handleShare = (blog) => {
-  const blogUrl = `${window.location.origin}/blog/${blog._id}`; // 👈 Dynamic blog link
-
-  if (navigator.share) {
-    // Web Share API (mobile only)
-    navigator.share({
-      title: blog.title,
-      text: `Check out this blog: ${blog.title}`,
-      url: blogUrl,
-    }).catch((error) => {
-      console.log('Error sharing:', error);
-    });
-  } else {
-    // Fallback: Copy to clipboard
-    navigator.clipboard.writeText(blogUrl).then(() => {
-      alert('Link copied to clipboard!');
-      // You could also use a toast notification instead
-    }).catch(err => {
-      console.error('Failed to copy link:', err);
-    });
   }
-};
+
+  const handleShare = (blog) => {
+    const blogUrl = `${window.location.origin}/blog/${blog._id}`
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: blog.title,
+          text: `Check out this blog: ${blog.title}`,
+          url: blogUrl,
+        })
+        .catch((error) => {
+          console.log("Error sharing:", error)
+        })
+    } else {
+      navigator.clipboard
+        .writeText(blogUrl)
+        .then(() => {
+          showToast("Link copied to clipboard!", "success")
+        })
+        .catch((err) => {
+          console.error("Failed to copy link:", err)
+          showToast("Failed to copy link", "error")
+        })
+    }
+  }
+
+  const navigateToBlog = (blogId) => {
+    window.location.href = `/blog/${blogId}`
+  }
+
+  const navigateToEdit = (blogId, e) => {
+    e.stopPropagation()
+    window.location.href = `/edit/${blogId}`
+  }
 
   useEffect(() => {
-    setBlogs([]);
-    setPage(1);
-    setHasMore(true);
-  }, [selectedCategory]);
+    setBlogs([])
+    setPage(1)
+    setHasMore(true)
+    fetchBlogs(selectedCategory, 1, debouncedSearchQuery)
+  }, [debouncedSearchQuery, selectedCategory])
 
   useEffect(() => {
-    fetchBlogs(selectedCategory, page);
-  }, [page, selectedCategory]);
-
+    if (page > 1) {
+      fetchBlogs(selectedCategory, page, debouncedSearchQuery)
+    }
+  }, [page])
 
   useEffect(() => {
     const handleScroll = throttle(() => {
-      if (
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 &&
-        !loading &&
-        hasMore
-      ) {
-        setPage((prevPage) => prevPage + 1);
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && !loading && hasMore) {
+        setPage((prevPage) => prevPage + 1)
       }
-    }, 300); // Adjust delay (ms) as needed
+    }, 300)
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore]);
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [loading, hasMore])
 
   return (
-    <div className="min-h-screen py-12 px-8 sm:px-6 lg:px-8 ">
+    <div className="min-h-screen py-8 px-8 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        <div className="mb-10">
+          <h1 className="text-3xl font-bold text-center mb-8">Explore Blogs</h1>
 
-        {/* Category Filter */}
-        <div className="w-full mb-10">
-          <div
-            className="filter flex space-x-2 overflow-x-auto scrollbar-hide px-2"
-          >
-            <input className="btn filter-reset" type="radio" name="category" aria-label="All"
-              onClick={() => {
-                setSelectedCategory('All');
-              }} />
-            {categories.map((cat) => (
+          {/* Search Bar */}
+          <div className="form-control max-w-md mx-auto mb-8">
+            <div className="relative input-group">
               <input
-                key={cat}
-                type="radio"
-                name="category"
-                aria-label={cat}
-                className={`btn disabled: ${selectedCategory === cat ? 'btn-primary' : 'btn-outline'}`}
-                onClick={() => {
-                  if (cat !== "All") {
-                    setBlogs([]);
-                  }
-                  setSelectedCategory(cat);
-                }}
+                type="text"
+                placeholder="Search articles..."
+                className="input input-bordered w-full focus:outline-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
+              <button className="btn btn-sm btn-square btn-primary absolute right-1 top-1 bottom-0 z-20">
+                <Search size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Category Filter */}
+          <div className="flex justify-center flex-wrap gap-2 mb-6">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`btn ${selectedCategory === category ? "btn-primary" : "btn-outline"}`}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </button>
             ))}
           </div>
         </div>
 
-        {loading && (
-          <div className="flex justify-center items-center mt-10 space-x-3 animate-pulse">
-            <svg
-              className="w-6 h-6 text-blue-500 animate-spin"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              ></path>
-            </svg>
-            <p className="text-blue-500 font-medium italic">Fetching more blogs for you...</p>
+        {/* Loading Indicator */}
+        {loading && blogs.length === 0 && (
+          <div className="flex justify-center items-center my-12">
+            <div className="loading loading-spinner loading-lg text-primary"></div>
+          </div>
+        )}
+
+        {/* No Results */}
+        {!loading && blogs.length === 0 && (
+          <div className="text-center my-16">
+            <div className="text-4xl mb-4">🔍</div>
+            <h3 className="text-xl font-semibold mb-2">No blogs found</h3>
+            <p className="text-base-content/70">Try adjusting your search or filter to find what you're looking for</p>
           </div>
         )}
 
         {/* Blogs Grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {blogs.map((blog) => (
             <div
               key={blog._id}
-              onClick={() => navigate(`/blog/${blog._id}`)}
-              className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transform transition duration-300 hover:shadow-xl hover:-translate-y-1"
+              onClick={() => navigateToBlog(blog._id)}
+              className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer"
             >
-              <div className="h-48 w-full bg-gray-200 relative">
+              <figure className="h-48 bg-base-200">
                 {/* {blog.image ? (
-                  <img
-                    src={blog.image || "https://images.unsplash.com/photo-1499750310107-5fef28a66643?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8fA%3D%3D"}
-                    alt={blog.title}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={blog.image || "/placeholder.svg"} alt={blog.title} className="w-full h-full object-cover" />
                 ) : ( */}
-                <div className="absolute inset-0 flex items-center justify-center bg-blue-100">
-                  <span className="text-blue-600 font-semibold text-lg">No Image</span>
+                <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                  <span className="text-primary font-semibold">No Image</span>
                 </div>
                 {/* )} */}
-              </div>
+              </figure>
 
-              <div className="p-6">
-                <div className="flex items-center justify-between space-x-2 mb-2">
-                  <span className="inline-block px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-100 rounded-full">
-                    {blog.category || 'Uncategorized'}
-                  </span>
+              <div className="card-body">
+                <div className="flex justify-between items-start">
+                  <div className="badge badge-primary">{blog.category || "Uncategorized"}</div>
 
-                  {/* Three dot menu */}
-                  <div className="relative"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="dropdown dropdown-end">
-                      <label tabIndex={0} className="flex items-center cursor-pointer">
-                        <div className="w-9 h-9 overflow-hidden rounded-full text-indigo-900  grid place-items-center">
-                          <BsThreeDotsVertical />
-                        </div>
-                      </label>
-
-                      <ul tabIndex={0} className="dropdown-content menu p-3 mt-2 shadow-lg bg-white rounded-xl w-52 z-30 border border-gray-100">
-
-                        {blog.author._id === user._id && (
-                          <>
-                            <li className="mb-1">
-                              <button
-                                // onClick={() => handleDelete(blog._id)}
-                                onClick={() => {
-                                  setBlogToDeleteId(blog._id);
-                                  setShowConfirmModal(true);
-                                  document.activeElement.blur(); // 👈 Closes the dropdown
-                                }}
-                                className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg"
-                              >
-                                <span>Delete</span>
-                              </button>
-                            </li>
-                            <li className="mb-1">
-                              <Link to={`/edit/${blog._id}`} className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg"
-                                onClick={() => document.activeElement.blur()}>
-                                <span>Edit</span>
-                              </Link>
-                            </li>
-                          </>
-                        )}
-
-                        <li className="mb-1">
-                          <button className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg"
-                            onClick={() => {
-                              handleShare(blog)
-                              document.activeElement.blur()
-                            }}>
-                            <span>Share</span>
-                          </button>
-                        </li>
-
-                      </ul>
-                    </div>
-
+                  {/* Dropdown Menu */}
+                  <div className="dropdown dropdown-end" onClick={(e) => e.stopPropagation()}>
+                    <label tabIndex={0} className="btn btn-ghost btn-circle btn-sm">
+                      <MoreVertical size={18} />
+                    </label>
+                    <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                      {blog.author?._id === user._id && (
+                        <>
+                          <li>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setBlogToDeleteId(blog._id)
+                                setShowConfirmModal(true)
+                              }}
+                              className="text-error"
+                            >
+                              <Trash size={16} />
+                              Delete
+                            </button>
+                          </li>
+                          <li>
+                            <button onClick={(e) => navigateToEdit(blog._id, e)}>
+                              <Edit size={16} />
+                              Edit
+                            </button>
+                          </li>
+                        </>
+                      )}
+                      <li>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleShare(blog)
+                          }}
+                        >
+                          <Share2 size={16} />
+                          Share
+                        </button>
+                      </li>
+                    </ul>
                   </div>
-
                 </div>
 
-                <h2 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2">{blog.title}</h2>
+                <h2 className="card-title line-clamp-2">{blog.title}</h2>
+
                 <div
-                  className="prose prose-blue max-w-none text-gray-600 text-sm mb-4 line-clamp-3"
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content || '') }}
+                  className="line-clamp-3 text-base-content/70 text-sm mt-2"
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content || "") }}
                 />
-                {/* <p className="text-gray-600 text-sm mb-4 line-clamp-3">{blog.content}</p> */}
-                <div className="flex items-center space-x-3 mt-4">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium text-white bg-gray-500">
-                    {blog.author?.name?.charAt(0)}
+
+                <div className="flex items-center mt-4 pt-4 border-t border-base-200">
+                  <div className="flex items-center">
+                    <div className="avatar">
+                      <div className="w-12 h-12 rounded-full">
+                        <img
+                          src={blog.author.avatar || "https://api.dicebear.com/7.x/initials/svg?seed=" + blog.author.name}
+                          alt={blog.author.name}
+                        />
+                      </div>
+                    </div>
+                    <div className="ml-3">
+                      <div className="font-medium">{blog.author.name || 'Unknown Author'}</div>
+                      <div className="text-sm opacity-70">{blog.author.role || 'Author'}</div>
+                    </div>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">{blog.author?.name}</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        {!hasMore && (
-          <div className="text-center mt-12 text-gray-400 text-sm italic">
-            You've reached the end of the blogs.
+        {/* Load More Indicator */}
+        {loading && blogs.length > 0 && (
+          <div className="flex justify-center mt-8">
+            <button className="btn btn-ghost gap-2">
+              <Loader2 size={20} className="animate-spin" />
+              Loading more...
+            </button>
+          </div>
+        )}
+
+        {/* End of Results */}
+        {!hasMore && blogs.length > 0 && (
+          <div className="text-center mt-12 text-base-content/50 text-sm italic">
+            You've reached the end of the blogs
           </div>
         )}
       </div>
 
+      {/* Confirmation Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/20 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-            <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
-            <p className="mb-6 text-gray-600">Are you sure you want to delete this blog?</p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="px-4 py-2 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-              >
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Confirm Deletion</h3>
+            <p className="py-4">Are you sure you want to delete this blog? This action cannot be undone.</p>
+            <div className="modal-action">
+              <button className="btn" onClick={() => setShowConfirmModal(false)}>
                 Cancel
               </button>
               <button
+                className="btn btn-error"
                 onClick={() => {
-                  handleDelete(blogToDeleteId);
-                  setShowConfirmModal(false);
+                  handleDelete(blogToDeleteId)
+                  setShowConfirmModal(false)
                 }}
-                className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
               >
                 Delete
               </button>
             </div>
           </div>
+          <div className="modal-backdrop" onClick={() => setShowConfirmModal(false)}></div>
         </div>
       )}
     </div>
-  );
-};
-
-export default BlogsPage;
+  )
+}
