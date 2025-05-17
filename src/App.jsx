@@ -8,6 +8,8 @@ import { ProfilePage } from './pages/ProfilePage'
 import HomePage from './pages/HomePage.jsx'
 import BlogsPage from './pages/BlogsPage.jsx'
 import CreateBlogPage from './pages/CreateBlogPage.jsx'
+import SingleBlogPage from './pages/SingleBlogPage.jsx'
+import EditBlogPage from './pages/EditBlogPage.jsx'
 
 
 function App() {
@@ -31,8 +33,10 @@ function App() {
               }>
 
                 <Route path="/create-post" element={<CreateBlogPage />} />
+                <Route path="/edit/:id" element={<EditBlogPage />} />
+                
                 <Route path="/blogs" element={<BlogsPage />} /> {/* All Blogs Page */}
-                <Route path="/blogs/:id" element={<BlogsPage />} /> {/* Blogs Page */}
+                <Route path="/blog/:id" element={<SingleBlogPage />} />
 
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>

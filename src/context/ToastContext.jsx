@@ -25,8 +25,8 @@ export const ToastProvider = ({ children, position = 'top-right' }) => {
 
   // Position Mapping
   const positionClasses = {
-    'top-right': 'top-16 right-6',
-    'top-left': 'top-16 left-6',
+    'top-right': 'top-20 right-6',
+    'top-left': 'top-20 left-6',
     'bottom-right': 'bottom-6 right-6',
     'bottom-left': 'bottom-6 left-6',
     center: 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',

@@ -1,9 +1,10 @@
 // src/pages/LoginPage.jsx
 import React, { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import axios from 'axios'
+import { backendUrl } from '../api/config'
 
 export const LoginPage = () => {
   const navigate = useNavigate()
@@ -34,7 +35,7 @@ export const LoginPage = () => {
 
     try {
       if (tab === 'login') {
-        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
+        const res = await axios.post(`${backendUrl}/api/auth/login`, {
           email, password
         }, { withCredentials: true })
 
@@ -42,7 +43,7 @@ export const LoginPage = () => {
         showToast('Login successful', 'success')
         navigate('/')
       } else {
-        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/signup`, {
+        const res = await axios.post(`${backendUrl}/api/auth/signup`, {
           name, email, password
         }, { withCredentials: true })
 

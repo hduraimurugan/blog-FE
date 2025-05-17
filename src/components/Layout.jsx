@@ -15,6 +15,7 @@ export const Layout = () => {
     const path = location.pathname;
     if (path === '/') setPageTitle('Explore The Latest Insights');
     else if (path.includes('/create-post')) setPageTitle('Create Blog');
+    else if (path.includes('/edit')) setPageTitle('Edit Blog');
     else if (path.includes('/blogs')) setPageTitle('All Blogs');
     else if (path.includes('/profile')) setPageTitle('My Profile');
     else setPageTitle('');
@@ -33,6 +34,8 @@ export const Layout = () => {
   const toggleSearchBar = () => {
     setShowSearch(!showSearch);
   };
+
+  const isBlogRoute = location.pathname.startsWith('/blog/');
 
   return (
     <div className="min-h-screen  flex flex-col font-poppins bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800">
@@ -152,7 +155,7 @@ export const Layout = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex space-x-2">
+                <div className="hidden md:flex space-x-2">
                   <Link to="/login?tab=login" className="px-4 py-1.5 text-sm font-medium text-blue-600 border border-blue-600 rounded-full hover:bg-blue-50 transition-colors">
                     Sign In
                   </Link>
@@ -164,7 +167,7 @@ export const Layout = () => {
 
               {/* Mobile Menu Button */}
               <button
-                className="lg:hidden ml-3 p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="lg:hidden ml-3 p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 onClick={toggleMobileMenu}
               >
                 {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -261,7 +264,7 @@ export const Layout = () => {
             )}
           </div>
         </section>
-      ) : location.pathname === '/login' ? (
+      ) : (location.pathname === '/login' || isBlogRoute) ? (
         <section className="">
         </section>
       ) : (
@@ -280,7 +283,7 @@ export const Layout = () => {
 
 
       {/* Main Content */}
-      <main className="flex-grow container mx-auto px-4 md:px-6 py-8">
+      <main className="flex-grow container mx-auto md:px-6 py-8">
         <Outlet />
       </main>
 

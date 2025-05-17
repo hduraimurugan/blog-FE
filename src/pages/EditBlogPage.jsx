@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit'; // ✅ Import StarterKit separately
+import StarterKit from '@tiptap/starter-kit';
 import {
     FaBold, FaItalic, FaStrikethrough,
-    FaHeading, FaListUl, FaListOl,FaRegImage
+    FaHeading, FaListUl, FaListOl, FaRegImage
 } from 'react-icons/fa';
-import { uploadImageToS3, generateSignedUrl } from '../utils/aws/aws';
 import { useToast } from '../context/ToastContext';
 import { backendUrl } from '../api/config';
 import axios from 'axios';
+import { uploadImageToS3, generateSignedUrl } from '../utils/aws/aws';
 
 const EditorMenuBar = ({ editor }) => {
     if (!editor) return null;
@@ -55,36 +56,36 @@ const EditorMenuBar = ({ editor }) => {
     return (
         <div className="flex flex-wrap gap-2 mb-4 p-3 bg-gray-50 border rounded-lg shadow-sm">
             {buttons.map((btn, idx) => (
-                <>
-                    <button
-                        key={idx}
-                        onClick={btn.action}
-                        type="button"
-                        title={btn.label}
-                        className={`flex items-center justify-center w-10 h-10 text-lg rounded-md border transition-all duration-200 
+                <button
+                    key={idx}
+                    onClick={btn.action}
+                    type="button"
+                    title={btn.label}
+                    className={`flex items-center justify-center w-10 h-10 text-lg rounded-md border transition-all duration-200 
             ${btn.isActive
-                                ? 'bg-blue-600 text-white shadow-lg scale-105'
-                                : 'bg-white text-gray-600 hover:bg-blue-100 hover:text-blue-700'
-                            }`}
-                    >
-                        {btn.icon}
-                    </button>
-                </>
-            ))
-            }
-        </div >
+                            ? 'bg-blue-600 text-white shadow-lg scale-105'
+                            : 'bg-white text-gray-600 hover:bg-blue-100 hover:text-blue-700'
+                        }`}
+                >
+                    {btn.icon}
+                </button>
+            ))}
+        </div>
     );
 };
 
-const CreateBlogPage = () => {
-    const { showToast } = useToast()
-    const [loading, setLoading] = useState(false)
-
+const EditBlogPage = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { showToast } = useToast();
+    const [loading, setLoading] = useState(false);
     const [blogData, setBlogData] = useState({
+        _id: '',
         title: '',
         category: 'Career',
         content: '',
         image: null,
+        imageUrl: ''
     });
 
     const categories = ['Career', 'Finance', 'Technology', 'Travel', 'Lifestyle', 'Health'];
@@ -95,16 +96,49 @@ const CreateBlogPage = () => {
         onUpdate: ({ editor }) => {
             setBlogData((prev) => ({
                 ...prev,
-                content: editor.getHTML(),
+                content: editor.getHTML()
             }));
-        },
+        }
     });
+
+    // Fetch blog data
+    const fetchBlog = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`${backendUrl}/api/blog/get/${id}`, {
+                withCredentials: true
+            });
+            const blog = response.data.data;
+            setBlogData({
+                _id: blog._id,
+                title: blog.title,
+                category: blog.category,
+                content: blog.content,
+                image: blog.image,
+                imageUrl: blog.imageUrl || blog.image // fallback if signed URL not available
+            });
+            if (editor) {
+                editor.commands.setContent(blog.content);
+            }
+            setLoading(false);
+        } catch (error) {
+            showToast('Error fetching blog', 'error');
+            console.error('Error fetching blog:', error);
+            setLoading(false);
+            navigate('/'); // Redirect on failure
+        }
+    };
+
+    useEffect(() => {
+        fetchBlog();
+        window.scrollTo(0, 0);
+    }, [id]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setBlogData((prev) => ({
             ...prev,
-            [name]: value,
+            [name]: value
         }));
     };
 
@@ -112,20 +146,14 @@ const CreateBlogPage = () => {
         const file = e.target.files[0];
         if (file) {
             try {
-                // Upload to S3
-                const key = await uploadImageToS3(file, 'blog-images'); // 'blog-images' is a folder prefix
-
-                // Generate signed URL for preview
+                const key = await uploadImageToS3(file, 'blog-images');
                 const signedUrl = await generateSignedUrl(key);
 
-                // Update blog data
                 setBlogData((prev) => ({
                     ...prev,
-                    image: key, // store the key (for saving to DB)
-                    imageUrl: signedUrl, // for previewing locally
+                    image: key,
+                    imageUrl: signedUrl
                 }));
-
-                console.log("Image uploaded successfully:", key);
             } catch (error) {
                 alert("Image upload failed. Please try again.");
                 console.error("S3 Upload Error:", error);
@@ -135,28 +163,30 @@ const CreateBlogPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true)
+        setLoading(true);
         try {
+            const res = await axios.put(`${backendUrl}/api/blog/update/${id}`, {
+                ...blogData
+            }, {
+                withCredentials: true
+            });
 
-            const res = await axios.post(`${backendUrl}/api/blog/create`, {
-                ...blogData,
-            }, { withCredentials: true })
-
-            if (res.status === 201) {
-                showToast('Blog created successfully!', 'success')
+            if (res.status === 200) {
+                showToast('Blog updated successfully!', 'success');
+                navigate('/blogs'); // or wherever you want to redirect after edit
             }
         } catch (err) {
-            showToast(err.msg, 'error')
+            showToast(err.response?.data?.msg || 'Failed to update blog', 'error');
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen  py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
                 <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 transition-all duration-300">
-                    <h1 className="text-3xl font-extrabold text-gray-900 mb-8">Write Your Thoughts</h1>
+                    <h1 className="text-3xl font-extrabold text-gray-900 mb-8">Edit Your Thoughts</h1>
 
                     <form onSubmit={handleSubmit}>
                         {/* Title Input */}
@@ -212,13 +242,13 @@ const CreateBlogPage = () => {
                                 required
                             />
                         </div>
-
+                        
                         <div className="hidden mb-6">
                             <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
                             <div className="mt-1 flex items-center space-x-4">
-                                {blogData.image ? (
+                                {blogData.imageUrl ? (
                                     <img
-                                        src={blogData.image}
+                                        src={blogData.imageUrl}
                                         alt="Preview"
                                         className="h-20 w-20 object-cover rounded-md"
                                     />
@@ -228,7 +258,7 @@ const CreateBlogPage = () => {
                                     </div>
                                 )}
                                 <label className="cursor-pointer bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Upload Image
+                                    Upload New Image
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -239,19 +269,16 @@ const CreateBlogPage = () => {
                             </div>
                         </div>
 
+
                         {/* Rich Text Editor */}
                         <div className="mb-10">
                             <label className="block text-md font-semibold text-gray-800 mb-4">
                                 Blog Content
                             </label>
-
                             <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
-                                {/* Toolbar */}
                                 <div className="p-4 border-b border-gray-200 bg-gray-50">
                                     <EditorMenuBar editor={editor} />
                                 </div>
-
-                                {/* Editor */}
                                 <div className="p-6">
                                     <EditorContent
                                         editor={editor}
@@ -261,7 +288,6 @@ const CreateBlogPage = () => {
                             </div>
                         </div>
 
-
                         {/* Submit Button */}
                         <div className="flex justify-end">
                             <button
@@ -269,7 +295,7 @@ const CreateBlogPage = () => {
                                 className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                                 disabled={loading}
                             >
-                                Publish Blog
+                                Update Blog
                             </button>
                         </div>
                     </form>
@@ -279,4 +305,4 @@ const CreateBlogPage = () => {
     );
 };
 
-export default CreateBlogPage;
+export default EditBlogPage;
