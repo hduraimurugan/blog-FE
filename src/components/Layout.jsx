@@ -35,6 +35,11 @@ export const Layout = () => {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+
   const fetchBlogs = async (search) => {
     try {
       setLoading(true)
@@ -251,7 +256,7 @@ export const Layout = () => {
                     <Search size={16} />
                   </button>
 
-                   {searchQuery.trim() !== "" && (
+                  {searchQuery.trim() !== "" && (
                     <div className="absolute z-10 mt-2 w-full bg-white rounded-md shadow-lg max-h-60 overflow-y-auto">
                       {loading ? (
                         <div className="p-2 text-sm text-gray-500">Loading...</div>
@@ -409,9 +414,9 @@ export const Layout = () => {
               </h3>
               <ul className="space-y-2">
                 <li><Link to="/" className="text-gray-300 hover:text-white text-sm">Home</Link></li>
-                <li><Link to="/categories" className="text-gray-300 hover:text-white text-sm">Categories</Link></li>
-                <li><Link to="/about" className="text-gray-300 hover:text-white text-sm">About Us</Link></li>
-                <li><Link to="/contact" className="text-gray-300 hover:text-white text-sm">Contact</Link></li>
+                <li><Link to="/blogs" className="text-gray-300 hover:text-white text-sm">Blogs</Link></li>
+                <li><Link to="https://durai-portfolio.vercel.app/#about" target='_blank' className="text-gray-300 hover:text-white text-sm">About Us</Link></li>
+                <li><Link to="https://durai-portfolio.vercel.app/#contact" target='_blank' className="text-gray-300 hover:text-white text-sm">Contact</Link></li>
               </ul>
             </div>
 

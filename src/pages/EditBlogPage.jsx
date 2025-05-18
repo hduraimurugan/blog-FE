@@ -137,7 +137,38 @@ const EditBlogPage = () => {
         imageUrl: ''
     });
 
-    const categories = ['Career', 'Finance', 'Technology', 'Travel', 'Lifestyle', 'Health'];
+    const categories = [
+        'Career',
+        'Finance',
+        'Technology',
+        'Travel',
+        'Lifestyle',
+        'Health',
+        'Education',
+        'Food & Drink',
+        'Entertainment',
+        'Sports',
+        'Science',
+        'Business',
+        'Fashion',
+        'Photography',
+        'Art & Design',
+        'Politics',
+        'Environment',
+        'Parenting',
+        'DIY & Crafts',
+        'Gaming',
+        'Music',
+        'Books & Literature',
+        'Relationships',
+        'Mental Health',
+        'Productivity',
+        'Startups',
+        'Marketing',
+        'Cryptocurrency',
+        'Real Estate',
+        'Automotive',
+    ];
 
     const editor = useEditor({
         extensions: [
@@ -155,7 +186,6 @@ const EditBlogPage = () => {
         }
     });
 
-    // Fetch blog data
     const fetchBlog = async () => {
         try {
             setLoading(true);
@@ -241,6 +271,55 @@ const EditBlogPage = () => {
             setLoading(false);
         }
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-4xl mx-auto">
+                    <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 animate-pulse">
+                        {/* Title Skeleton */}
+                        <div className="mb-6">
+                            <div className="h-6 w-32 bg-gray-300 rounded mb-2"></div> {/* Label */}
+                            <div className="h-10 w-full bg-gray-200 rounded-lg"></div> {/* Input */}
+                        </div>
+
+                        {/* Category Skeleton */}
+                        <div className="mb-6">
+                            <div className="h-6 w-24 bg-gray-300 rounded mb-2"></div> {/* Label */}
+                            <div className="h-10 w-full bg-gray-200 rounded-lg"></div> {/* Select */}
+                        </div>
+
+                        {/* Image Upload Skeleton */}
+                        <div className="mb-6">
+                            <div className="h-6 w-28 bg-gray-300 rounded mb-2"></div> {/* Label */}
+                            <div className="flex items-center space-x-4">
+                                <div className="h-20 w-20 bg-gray-200 rounded-md"></div> {/* Image Preview */}
+                                <div className="h-10 w-36 bg-gray-200 rounded-lg"></div> {/* Upload button */}
+                            </div>
+                        </div>
+
+                        {/* Rich Text Editor Skeleton */}
+                        <div className="mb-10">
+                            <div className="h-6 w-40 bg-gray-300 rounded mb-4"></div> {/* Label */}
+                            <div className="rounded-xl border border-gray-200 shadow-sm bg-white">
+                                <div className="p-4 border-b border-gray-200 bg-gray-50">
+                                    <div className="h-8 w-full bg-gray-200 rounded"></div> {/* Toolbar */}
+                                </div>
+                                <div className="p-6">
+                                    <div className="h-[250px] w-full bg-gray-200 rounded"></div> {/* Editor content */}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Submit Button Skeleton */}
+                        <div className="flex justify-end">
+                            <div className="h-12 w-32 bg-gray-300 rounded-lg"></div> {/* Button */}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -350,12 +429,12 @@ const EditBlogPage = () => {
 
                         {/* Submit Button */}
                         <div className="flex justify-end">
-                           
-                              <button
+
+                            <button
                                 type="submit"
                                 className={`px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${loading
-                                        ? 'bg-gray-400 cursor-not-allowed'
-                                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transform hover:-translate-y-0.5'
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transform hover:-translate-y-0.5'
                                     }`}
                                 disabled={loading}
                             >

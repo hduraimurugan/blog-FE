@@ -4,6 +4,7 @@ import axios from 'axios'
 import DOMPurify from "dompurify"
 import { useNavigate } from 'react-router-dom'
 import { generateSignedUrl } from '../utils/aws/aws'
+import { motion } from "framer-motion";
 
 
 const HomePage = () => {
@@ -62,9 +63,12 @@ const HomePage = () => {
             {loading && blogs.length === 0 && (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 my-12">
                     {[...Array(6)].map((_, i) => (
-                        <div
+                        <motion.div
                             key={i}
                             className="card bg-base-100 shadow-xl animate-pulse overflow-hidden"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: i * 0.1 }}
                         >
                             <figure className="h-48 bg-base-200">
                                 <div className="w-full h-full bg-blue-200" />
@@ -97,7 +101,7 @@ const HomePage = () => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             )}
@@ -113,10 +117,15 @@ const HomePage = () => {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {blogs.map((blog) => (
-                    <div
+                    <motion.div
                         key={blog._id}
                         onClick={() => navigateToBlog(blog._id)}
-                        className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer"
+                        className="card bg-base-100 shadow-xl overflow-hidden cursor-pointer"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.12)" }}
+                        whileTap={{ scale: 0.97 }}
                     >
                         <figure className="h-48 bg-base-200">
                             {blog.imageUrl ? (
@@ -158,17 +167,20 @@ const HomePage = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
 
-
             <div className="flex justify-center mt-8">
-                <button
+                <motion.button
                     className="btn btn-primary btn-outline"
-                    onClick={() => navigate("/blogs")}>
+                    onClick={() => navigate("/blogs")}
+                    whileHover={{ scale: 1.05, backgroundColor: "#3b82f6", color: "#fff" }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                >
                     Load More Blogs
-                </button>
+                </motion.button>
             </div>
         </div>
     )

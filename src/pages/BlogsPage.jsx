@@ -7,6 +7,8 @@ import { backendUrl } from '../api/config'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { generateSignedUrl } from "../utils/aws/aws"
+import { motion } from "framer-motion";
+
 
 export default function BlogsPage() {
   const { user } = useAuth()
@@ -196,9 +198,12 @@ export default function BlogsPage() {
         {loading && blogs.length === 0 && (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 my-12">
             {[...Array(6)].map((_, i) => (
-              <div
+              <motion.div
                 key={i}
                 className="card bg-base-100 shadow-xl animate-pulse overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
               >
                 <figure className="h-48 bg-base-200">
                   <div className="w-full h-full bg-blue-200" />
@@ -220,7 +225,6 @@ export default function BlogsPage() {
                     <div className="bg-base-300 h-4 w-2/3 rounded-md"></div>
                   </div>
 
-                  {/* Author section (hidden in actual cards but still sketched) */}
                   <div className="hidden items-center mt-4 pt-4 border-t border-base-200">
                     <div className="avatar">
                       <div className="w-12 h-12 rounded-full bg-base-300"></div>
@@ -231,7 +235,7 @@ export default function BlogsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
@@ -343,9 +347,12 @@ export default function BlogsPage() {
         {loading && blogs.length > 0 && (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 my-12">
             {[...Array(6)].map((_, i) => (
-              <div
+              <motion.div
                 key={i}
                 className="card bg-base-100 shadow-xl animate-pulse overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
               >
                 <figure className="h-48 bg-base-200">
                   <div className="w-full h-full bg-blue-200" />
@@ -367,7 +374,6 @@ export default function BlogsPage() {
                     <div className="bg-base-300 h-4 w-2/3 rounded-md"></div>
                   </div>
 
-                  {/* Author section (hidden in actual cards but still sketched) */}
                   <div className="hidden items-center mt-4 pt-4 border-t border-base-200">
                     <div className="avatar">
                       <div className="w-12 h-12 rounded-full bg-base-300"></div>
@@ -378,7 +384,7 @@ export default function BlogsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}

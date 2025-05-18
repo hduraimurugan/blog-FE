@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit'; // ✅ Import StarterKit separately
 import CodeBlock from '@tiptap/extension-code-block'
@@ -136,7 +136,38 @@ const CreateBlogPage = () => {
         image: null,
     });
 
-    const categories = ['Career', 'Finance', 'Technology', 'Travel', 'Lifestyle', 'Health'];
+    const categories = [
+        'Career',
+        'Finance',
+        'Technology',
+        'Travel',
+        'Lifestyle',
+        'Health',
+        'Education',
+        'Food & Drink',
+        'Entertainment',
+        'Sports',
+        'Science',
+        'Business',
+        'Fashion',
+        'Photography',
+        'Art & Design',
+        'Politics',
+        'Environment',
+        'Parenting',
+        'DIY & Crafts',
+        'Gaming',
+        'Music',
+        'Books & Literature',
+        'Relationships',
+        'Mental Health',
+        'Productivity',
+        'Startups',
+        'Marketing',
+        'Cryptocurrency',
+        'Real Estate',
+        'Automotive',
+    ];
 
     const editor = useEditor({
         extensions: [
@@ -201,12 +232,16 @@ const CreateBlogPage = () => {
                 navigate('/blogs')
                 showToast('Blog created successfully!', 'success')
             }
-        } catch (err) { 
+        } catch (err) {
             showToast(err.msg, 'error')
         } finally {
             setLoading(false)
         }
     };
+
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
 
     return (
         <div className="min-h-screen  py-12 px-4 sm:px-6 lg:px-8">
@@ -322,8 +357,8 @@ const CreateBlogPage = () => {
                             <button
                                 type="submit"
                                 className={`px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${loading
-                                        ? 'bg-gray-400 cursor-not-allowed'
-                                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transform hover:-translate-y-0.5'
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transform hover:-translate-y-0.5'
                                     }`}
                                 disabled={loading}
                             >

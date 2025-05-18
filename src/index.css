@@ -3,6 +3,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* Optional: custom component styles here */
+}
+
+@layer utilities {
+  /* Optional: custom utilities here */
+}
+
+
 
 @import "tailwindcss";
 @plugin "daisyui";

@@ -313,7 +313,7 @@ const SingleBlogPage = () => {
           </div>
 
           {/* Author Bio (Optional) */}
-          {blog.author.bio && (
+          {blog.author && (
             <div className="mt-8 md:mt-12 p-4 md:p-6 bg-base-200 rounded-lg transition-all hover:shadow-md">
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                 <div className="avatar">
@@ -326,7 +326,7 @@ const SingleBlogPage = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-center sm:text-left">About {blog.author.name}</h3>
-                  <p className="mt-2 text-base-content/80">{blog.author.bio}</p>
+                  <p className="mt-2 text-base-content/80">{blog.author.email}</p>
                 </div>
               </div>
             </div>
