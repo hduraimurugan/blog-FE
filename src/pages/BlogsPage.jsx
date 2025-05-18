@@ -31,6 +31,11 @@ export default function BlogsPage() {
     return () => clearTimeout(timer)
   }, [searchQuery])
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+
   const fetchBlogs = async (category, pageToFetch, search) => {
     try {
       setLoading(true);
@@ -167,7 +172,7 @@ export default function BlogsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button className="btn btn-sm btn-square btn-primary absolute right-1 top-1 bottom-0 z-20">
+              <button className="btn btn-sm btn-square btn-primary absolute right-1 top-1 bottom-0 z-10">
                 <Search size={20} />
               </button>
             </div>
@@ -189,8 +194,45 @@ export default function BlogsPage() {
 
         {/* Loading Indicator */}
         {loading && blogs.length === 0 && (
-          <div className="flex justify-center items-center my-12">
-            <div className="loading loading-spinner loading-lg text-primary"></div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 my-12">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="card bg-base-100 shadow-xl animate-pulse overflow-hidden"
+              >
+                <figure className="h-48 bg-base-200">
+                  <div className="w-full h-full bg-blue-200" />
+                </figure>
+
+                <div className="card-body">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="badge bg-primary/30 w-24 h-5 rounded-full"></div>
+                  </div>
+
+                  <h2 className="card-title space-y-2">
+                    <div className="bg-base-300 h-5 w-3/4 rounded-md"></div>
+                    <div className="bg-base-300 h-5 w-2/3 rounded-md"></div>
+                  </h2>
+
+                  <div className="space-y-2 mt-2">
+                    <div className="bg-base-300 h-4 w-full rounded-md"></div>
+                    <div className="bg-base-300 h-4 w-11/12 rounded-md"></div>
+                    <div className="bg-base-300 h-4 w-2/3 rounded-md"></div>
+                  </div>
+
+                  {/* Author section (hidden in actual cards but still sketched) */}
+                  <div className="hidden items-center mt-4 pt-4 border-t border-base-200">
+                    <div className="avatar">
+                      <div className="w-12 h-12 rounded-full bg-base-300"></div>
+                    </div>
+                    <div className="ml-3 space-y-2">
+                      <div className="h-4 w-24 bg-base-300 rounded-md"></div>
+                      <div className="h-3 w-16 bg-base-300 rounded-md opacity-70"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -215,10 +257,10 @@ export default function BlogsPage() {
                 {(blog.imageUrl || blog.image) ? (
                   <img src={blog.imageUrl || blog.image || "/placeholder.svg"} alt={blog.title} className="w-full h-full object-cover" />
                 ) : (
-                <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                  <span className="text-primary font-semibold">No Image</span>
-                </div>
-                 )}
+                  <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                    <span className="text-primary font-semibold">No Image</span>
+                  </div>
+                )}
               </figure>
 
               <div className="card-body">
@@ -279,7 +321,7 @@ export default function BlogsPage() {
                 <div className="flex items-center mt-4 pt-4 border-t border-base-200">
                   <div className="flex items-center">
                     <div className="avatar">
-                      <div className="w-12 h-12 rounded-full">
+                      <div className="w-8 h-8 rounded-full">
                         <img
                           src={blog.author.avatar || "https://api.dicebear.com/7.x/initials/svg?seed=" + blog.author.name}
                           alt={blog.author.name}
@@ -299,11 +341,45 @@ export default function BlogsPage() {
 
         {/* Load More Indicator */}
         {loading && blogs.length > 0 && (
-          <div className="flex justify-center mt-8">
-            <button className="btn btn-ghost gap-2">
-              <Loader2 size={20} className="animate-spin" />
-              Loading more...
-            </button>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 my-12">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="card bg-base-100 shadow-xl animate-pulse overflow-hidden"
+              >
+                <figure className="h-48 bg-base-200">
+                  <div className="w-full h-full bg-blue-200" />
+                </figure>
+
+                <div className="card-body">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="badge bg-primary/30 w-24 h-5 rounded-full"></div>
+                  </div>
+
+                  <h2 className="card-title space-y-2">
+                    <div className="bg-base-300 h-5 w-3/4 rounded-md"></div>
+                    <div className="bg-base-300 h-5 w-2/3 rounded-md"></div>
+                  </h2>
+
+                  <div className="space-y-2 mt-2">
+                    <div className="bg-base-300 h-4 w-full rounded-md"></div>
+                    <div className="bg-base-300 h-4 w-11/12 rounded-md"></div>
+                    <div className="bg-base-300 h-4 w-2/3 rounded-md"></div>
+                  </div>
+
+                  {/* Author section (hidden in actual cards but still sketched) */}
+                  <div className="hidden items-center mt-4 pt-4 border-t border-base-200">
+                    <div className="avatar">
+                      <div className="w-12 h-12 rounded-full bg-base-300"></div>
+                    </div>
+                    <div className="ml-3 space-y-2">
+                      <div className="h-4 w-24 bg-base-300 rounded-md"></div>
+                      <div className="h-3 w-16 bg-base-300 rounded-md opacity-70"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

@@ -1,9 +1,16 @@
 // src/pages/ProfilePage.jsx
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
+import { useToast } from '../context/ToastContext'
 
 export const ProfilePage = () => {
   const { user } = useAuth()
+  const { showToast } = useToast()
+
+  const handleEditProfile = () => {
+    // Implement the logic to handle editing the user profile
+    showToast('Profile edit option is not available right now!', 'info')
+  }
 
   return (
     <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8">
@@ -45,7 +52,8 @@ export const ProfilePage = () => {
 
           {/* Optional Action Button */}
           <div className="mt-10 flex justify-center">
-            <button className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+            <button className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            onClick={handleEditProfile}>
               Edit Profile
             </button>
           </div>

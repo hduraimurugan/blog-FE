@@ -10,6 +10,8 @@ import BlogsPage from './pages/BlogsPage.jsx'
 import CreateBlogPage from './pages/CreateBlogPage.jsx'
 import SingleBlogPage from './pages/SingleBlogPage.jsx'
 import EditBlogPage from './pages/EditBlogPage.jsx'
+import Bookmarks from './pages/Bookmarks.jsx'
+import Notifications from './pages/Notifications.jsx'
 
 
 function App() {
@@ -39,6 +41,8 @@ function App() {
                 <Route path="/blog/:id" element={<SingleBlogPage />} />
 
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/bookmarks" element={<Bookmarks />} />
+                <Route path="/notifications" element={<Notifications />} />
               </Route>
 
               <Route path="*" element={<Navigate to="/" replace />} />

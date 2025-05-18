@@ -68,7 +68,7 @@ export const ToastProvider = ({ children, position = 'top-right' }) => {
                 onClick={() =>
                   setToasts((prev) => prev.filter((t) => t.id !== toast.id))
                 }
-                className="absolute p-1 top-2 right-2 text-white hover:text-white/80 text-sm font-bold cursor-pointer"
+                className=" hidden absolute p-1 top-1 right-1 text-white hover:text-white/80 text-xs font-bold cursor-pointer"
               >
                 <MdClose />
               </button>

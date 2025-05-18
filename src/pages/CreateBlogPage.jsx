@@ -20,8 +20,9 @@ import {
     FaUndo,
     FaRedo,
     FaMinus,
-    FaRegImage 
+    FaRegImage
 } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const EditorMenuBar = ({ editor }) => {
     if (!editor) return null;
@@ -125,6 +126,7 @@ const EditorMenuBar = ({ editor }) => {
 
 const CreateBlogPage = () => {
     const { showToast } = useToast()
+    const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
 
     const [blogData, setBlogData] = useState({
@@ -196,9 +198,10 @@ const CreateBlogPage = () => {
             }, { withCredentials: true })
 
             if (res.status === 201) {
+                navigate('/blogs')
                 showToast('Blog created successfully!', 'success')
             }
-        } catch (err) {
+        } catch (err) { 
             showToast(err.msg, 'error')
         } finally {
             setLoading(false)
@@ -262,7 +265,6 @@ const CreateBlogPage = () => {
                                 onChange={handleChange}
                                 placeholder="Your amazing blog title..."
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
                             />
                         </div>
 
@@ -319,11 +321,15 @@ const CreateBlogPage = () => {
                         <div className="flex justify-end">
                             <button
                                 type="submit"
-                                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                className={`px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${loading
+                                        ? 'bg-gray-400 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transform hover:-translate-y-0.5'
+                                    }`}
                                 disabled={loading}
                             >
-                                Publish Blog
+                                {loading ? 'Publishing...' : 'Publish Blog'}
                             </button>
+
                         </div>
                     </form>
                 </div>

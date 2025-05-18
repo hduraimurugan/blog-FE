@@ -163,13 +163,17 @@ const EditBlogPage = () => {
                 withCredentials: true
             });
             const blog = response.data.data;
+
+            // Assuming blogData.image contains the key or path in S3
+            const signedUrl = await generateSignedUrl(blog.image);
+
             setBlogData({
                 _id: blog._id,
                 title: blog.title,
                 category: blog.category,
                 content: blog.content,
                 image: blog.image,
-                imageUrl: blog.imageUrl || blog.image // fallback if signed URL not available
+                imageUrl: signedUrl
             });
             if (editor) {
                 editor.commands.setContent(blog.content);
@@ -201,7 +205,9 @@ const EditBlogPage = () => {
         if (file) {
             try {
                 const key = await uploadImageToS3(file, 'blog-images');
+                // Generate signed URL for preview
                 const signedUrl = await generateSignedUrl(key);
+                // console.log("Signed URL:", signedUrl);
 
                 setBlogData((prev) => ({
                     ...prev,
@@ -344,12 +350,16 @@ const EditBlogPage = () => {
 
                         {/* Submit Button */}
                         <div className="flex justify-end">
-                            <button
+                           
+                              <button
                                 type="submit"
-                                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                className={`px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${loading
+                                        ? 'bg-gray-400 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transform hover:-translate-y-0.5'
+                                    }`}
                                 disabled={loading}
                             >
-                                Update Blog
+                                {loading ? 'Updating...' : ' Update Blog'}
                             </button>
                         </div>
                     </form>

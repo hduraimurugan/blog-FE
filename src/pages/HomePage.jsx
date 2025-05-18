@@ -57,6 +57,60 @@ const HomePage = () => {
     return (
         <div className="p-8">
             <h1 className="text-3xl font-bold mb-4">Latest Blogs</h1>
+
+            {/* Loading Indicator */}
+            {loading && blogs.length === 0 && (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 my-12">
+                    {[...Array(6)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="card bg-base-100 shadow-xl animate-pulse overflow-hidden"
+                        >
+                            <figure className="h-48 bg-base-200">
+                                <div className="w-full h-full bg-blue-200" />
+                            </figure>
+
+                            <div className="card-body">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="badge bg-primary/30 w-24 h-5 rounded-full"></div>
+                                </div>
+
+                                <h2 className="card-title space-y-2">
+                                    <div className="bg-base-300 h-5 w-3/4 rounded-md"></div>
+                                    <div className="bg-base-300 h-5 w-2/3 rounded-md"></div>
+                                </h2>
+
+                                <div className="space-y-2 mt-2">
+                                    <div className="bg-base-300 h-4 w-full rounded-md"></div>
+                                    <div className="bg-base-300 h-4 w-11/12 rounded-md"></div>
+                                    <div className="bg-base-300 h-4 w-2/3 rounded-md"></div>
+                                </div>
+
+                                {/* Author section (hidden in actual cards but still sketched) */}
+                                <div className="hidden items-center mt-4 pt-4 border-t border-base-200">
+                                    <div className="avatar">
+                                        <div className="w-12 h-12 rounded-full bg-base-300"></div>
+                                    </div>
+                                    <div className="ml-3 space-y-2">
+                                        <div className="h-4 w-24 bg-base-300 rounded-md"></div>
+                                        <div className="h-3 w-16 bg-base-300 rounded-md opacity-70"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+
+            {!loading && blogs.length === 0 && (
+                <div className="text-center my-16">
+                    <div className="text-4xl mb-4">🔍</div>
+                    <h3 className="text-xl font-semibold mb-2">No blogs found</h3>
+                    <p className="text-base-content/70">Try adjusting your search or filter to find what you're looking for</p>
+                </div>
+            )}
+
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {blogs.map((blog) => (
                     <div

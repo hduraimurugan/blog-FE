@@ -134,7 +134,7 @@ export const Layout = () => {
                   </button>
 
                   {searchQuery.trim() !== "" && (
-                    <div className="absolute z-10 mt-2 w-full bg-white rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-50 mt-2 w-full bg-white rounded-md shadow-lg max-h-60 overflow-y-auto">
                       {loading ? (
                         <div className="p-2 text-sm text-gray-500">Loading...</div>
                       ) : blogs.length > 0 ? (
