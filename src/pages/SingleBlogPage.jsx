@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 import { useToast } from "../context/ToastContext"
+import { generateSignedUrl } from "../utils/aws/aws"
 
 const SingleBlogPage = () => {
   const { id } = useParams()
@@ -39,7 +40,18 @@ const SingleBlogPage = () => {
         withCredentials: true,
       })
 
-      setBlog(response.data.data)
+      const blogData = response.data.data;
+
+      // Assuming blogData.image contains the key or path in S3
+      const signedUrl = await generateSignedUrl(blogData.image);
+
+      // Attach the signed URL to blogData
+      const updatedBlog = {
+        ...blogData,
+        imageUrl: signedUrl,
+      };
+
+      setBlog(updatedBlog);
       console.log(response.data.data)
       setLoading(false)
     } catch (error) {
@@ -142,18 +154,18 @@ const SingleBlogPage = () => {
   return (
     <div className="">
       {/* Featured Image Header */}
-      {/* {blog.image ? (
+      {blog.imageUrl ? (
         <div className="w-full h-[40vh] md:h-[50vh] lg:h-[60vh] relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-base-100 opacity-70 z-10"></div>
-          <img src={blog.image || "/placeholder.svg"} alt={blog.title} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-base-100 opacity-40 z-10"></div>
+          <img src={blog.imageUrl || "/placeholder.svg"} alt={blog.title} className="w-full h-full object-cover" />
         </div>
-      ) : ( */}
-        <div className="w-full h-[40vh] md:h-[50vh] lg:h-[60vh] relative overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center bg-blue-100 rounded-2xl w-full h-full">
-            <span className="text-primary font-semibold text-lg">No Image Available</span>
-          </div>
+      ) : (
+      <div className="w-full h-[40vh] md:h-[50vh] lg:h-[60vh] relative overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center bg-blue-100 rounded-2xl w-full h-full">
+          <span className="text-primary font-semibold text-lg">No Image Available</span>
         </div>
-      {/* )} */}
+      </div>
+       )}
 
       {/* Blog Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16 -mt-20 relative z-10">
@@ -275,7 +287,7 @@ const SingleBlogPage = () => {
             <div className="flex flex-wrap gap-2">
               <button
                 className={`btn btn-sm md:btn-md btn-outline ${liked ? "btn-error" : ""} gap-2`}
-                // onClick={handleLike}
+              // onClick={handleLike}
               >
                 <HeartIcon size={18} className={liked ? "fill-current" : ""} />
                 <span className="hidden sm:inline">{liked ? blog.likes + 1 : blog.likes} Likes</span>

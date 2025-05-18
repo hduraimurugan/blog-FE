@@ -14,15 +14,15 @@ import EditBlogPage from './pages/EditBlogPage.jsx'
 
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
+    <ToastProvider>
+      <AuthProvider>
         <div className="">
           <Router>
             <Routes>
               <Route element={
                 <Layout />
               }>
-                <Route path="/" element={<HomePage />} /> {/* Random or Free COntent */}
+                <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
               </Route>
 
@@ -34,8 +34,8 @@ function App() {
 
                 <Route path="/create-post" element={<CreateBlogPage />} />
                 <Route path="/edit/:id" element={<EditBlogPage />} />
-                
-                <Route path="/blogs" element={<BlogsPage />} /> {/* All Blogs Page */}
+
+                <Route path="/blogs" element={<BlogsPage />} />
                 <Route path="/blog/:id" element={<SingleBlogPage />} />
 
                 <Route path="/profile" element={<ProfilePage />} />
@@ -49,8 +49,8 @@ function App() {
             </Routes>
           </Router>
         </div>
-      </ToastProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ToastProvider>
   )
 }
 

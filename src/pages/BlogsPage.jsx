@@ -6,6 +6,7 @@ import { Search, MoreVertical, Edit, Trash, Share2, Loader2 } from "lucide-react
 import { backendUrl } from '../api/config'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { generateSignedUrl } from "../utils/aws/aws"
 
 export default function BlogsPage() {
   const { user } = useAuth()
@@ -20,7 +21,7 @@ export default function BlogsPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [blogToDeleteId, setBlogToDeleteId] = useState(null)
 
-  const categories = ["All", "Technology", "Health", "Travel", "Finance", "Lifestyle"]
+  const categories = ["All", "Technology", "World", "Travel", "Finance", "Career"]
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -32,7 +33,7 @@ export default function BlogsPage() {
 
   const fetchBlogs = async (category, pageToFetch, search) => {
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await axios.get(`${backendUrl}/api/blog/get`, {
         params: {
           category: category !== "All" ? category : undefined,
@@ -41,28 +42,42 @@ export default function BlogsPage() {
           search: search || undefined,
         },
         withCredentials: true,
-      })
+      });
 
-      const newBlogs = response.data.data
-      const uniqueNewBlogs = newBlogs.filter(
-        (newBlog) => !blogs.some((existingBlog) => existingBlog._id === newBlog._id),
-      )
+      const newBlogs = response.data.data;
+
+      // Generate signed URLs for each blog image
+      const blogsWithSignedUrls = await Promise.all(
+        newBlogs.map(async (blog) => {
+          const signedUrl = await generateSignedUrl(blog.image); // assuming blog.image holds the S3 key or path
+          return {
+            ...blog,
+            imageUrl: signedUrl, // add signed URL here
+          };
+        })
+      );
+
+      // Filter unique blogs compared to existing ones
+      const uniqueNewBlogs = blogsWithSignedUrls.filter(
+        (newBlog) => !blogs.some((existingBlog) => existingBlog._id === newBlog._id)
+      );
 
       if (newBlogs.length === 0 || uniqueNewBlogs.length === 0) {
-        setHasMore(false)
+        setHasMore(false);
       }
 
       if (pageToFetch === 1) {
-        setBlogs(newBlogs)
+        setBlogs(blogsWithSignedUrls);
       } else {
-        setBlogs((prevBlogs) => [...prevBlogs, ...uniqueNewBlogs])
+        setBlogs((prevBlogs) => [...prevBlogs, ...uniqueNewBlogs]);
       }
     } catch (error) {
-      console.error("Error fetching blogs:", error)
+      console.error("Error fetching blogs:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
 
   const handleDelete = async (id) => {
     try {
@@ -197,13 +212,13 @@ export default function BlogsPage() {
               className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer"
             >
               <figure className="h-48 bg-base-200">
-                {/* {blog.image ? (
-                  <img src={blog.image || "/placeholder.svg"} alt={blog.title} className="w-full h-full object-cover" />
-                ) : ( */}
+                {(blog.imageUrl || blog.image) ? (
+                  <img src={blog.imageUrl || blog.image || "/placeholder.svg"} alt={blog.title} className="w-full h-full object-cover" />
+                ) : (
                 <div className="w-full h-full flex items-center justify-center bg-primary/10">
                   <span className="text-primary font-semibold">No Image</span>
                 </div>
-                {/* )} */}
+                 )}
               </figure>
 
               <div className="card-body">

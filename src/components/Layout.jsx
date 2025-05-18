@@ -161,7 +161,7 @@ export const Layout = () => {
             <div className="flex items-center">
               {/* Mobile Search Toggle */}
               <button
-                className="p-2 mr-2 text-gray-600 hover:text-blue-600 focus:outline-none"
+                className="lg:hidden p-2 mr-2 text-gray-600 hover:text-blue-600 focus:outline-none"
                 onClick={toggleSearchBar}
               >
                 <Search size={20} />
@@ -214,7 +214,7 @@ export const Layout = () => {
               ) : (
                 <div className="hidden md:flex space-x-2">
                   <Link to="/login?tab=login" className="px-4 py-1.5 text-sm font-medium text-blue-600 border border-blue-600 rounded-full hover:bg-blue-50 transition-colors">
-                    Sign In
+                    Login
                   </Link>
                   <Link to="/login?tab=signup" className="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-colors">
                     Sign Up
@@ -234,7 +234,7 @@ export const Layout = () => {
 
           {/* Mobile Search Bar */}
           {showSearch && (
-            <div className="py-2 px-2">
+            <div className="lg:hidden py-2 px-2">
               <div className="w-full">
                 <div className="relative">
                   <input
@@ -332,8 +332,8 @@ export const Layout = () => {
                     Join Our Community
                   </Link>
                   <Link
-                    to="/learn-more"
-                    className="px-6 py-3 border border-white text-white font-medium rounded-full hover:bg-white hover:bg-opacity-10 transition-colors"
+                    // to="/learn-more"
+                    className="px-6 py-3 border border-white text-white font-medium rounded-full hover:bg-white hover:bg-opacity-10 hover:text-primary transition-colors"
                   >
                     Learn More
                   </Link>

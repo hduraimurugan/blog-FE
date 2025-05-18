@@ -47,7 +47,7 @@ export const ToastProvider = ({ children, position = 'top-right' }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className={`relative min-w-[200px] max-w-xs px-4 py-3 rounded-xl shadow-xl text-white font-medium
+              className={`relative min-w-[200px] max-w-md px-4 py-3 rounded-xl shadow-xl text-white font-medium
         ${toast.type === 'success'
                   ? 'bg-emerald-600'
                   : toast.type === 'neutral'

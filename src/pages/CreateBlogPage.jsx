@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit'; // ✅ Import StarterKit separately
-import {
-    FaBold, FaItalic, FaStrikethrough,
-    FaHeading, FaListUl, FaListOl,FaRegImage
-} from 'react-icons/fa';
+import CodeBlock from '@tiptap/extension-code-block'
+import Blockquote from '@tiptap/extension-blockquote'
+import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import { uploadImageToS3, generateSignedUrl } from '../utils/aws/aws';
 import { useToast } from '../context/ToastContext';
 import { backendUrl } from '../api/config';
 import axios from 'axios';
+import {
+    FaBold,
+    FaItalic,
+    FaStrikethrough,
+    FaHeading,
+    FaListUl,
+    FaListOl,
+    FaCode,
+    FaQuoteRight,
+    FaUndo,
+    FaRedo,
+    FaMinus,
+    FaRegImage 
+} from 'react-icons/fa';
 
 const EditorMenuBar = ({ editor }) => {
     if (!editor) return null;
@@ -50,31 +63,65 @@ const EditorMenuBar = ({ editor }) => {
             isActive: editor.isActive('orderedList'),
             label: 'Numbered List',
         },
+        {
+            icon: <FaCode />,
+            action: () => editor.chain().focus().toggleCode().run(),
+            isActive: editor.isActive('code'),
+            label: 'Inline Code',
+        },
+        {
+            icon: <FaCode />,
+            action: () => editor.chain().focus().toggleCodeBlock().run(),
+            isActive: editor.isActive('codeBlock'),
+            label: 'Code Block',
+        },
+        {
+            icon: <FaQuoteRight />,
+            action: () => editor.chain().focus().toggleBlockquote().run(),
+            isActive: editor.isActive('blockquote'),
+            label: 'Blockquote',
+        },
+        {
+            icon: <FaMinus />,
+            action: () => editor.chain().focus().setHorizontalRule().run(),
+            isActive: false,
+            label: 'Horizontal Rule',
+        },
+        {
+            icon: <FaUndo />,
+            action: () => editor.chain().focus().undo().run(),
+            isActive: false,
+            label: 'Undo (Ctrl+Z)',
+        },
+        {
+            icon: <FaRedo />,
+            action: () => editor.chain().focus().redo().run(),
+            isActive: false,
+            label: 'Redo (Ctrl+Y)',
+        },
     ];
 
     return (
         <div className="flex flex-wrap gap-2 mb-4 p-3 bg-gray-50 border rounded-lg shadow-sm">
             {buttons.map((btn, idx) => (
-                <>
-                    <button
-                        key={idx}
-                        onClick={btn.action}
-                        type="button"
-                        title={btn.label}
-                        className={`flex items-center justify-center w-10 h-10 text-lg rounded-md border transition-all duration-200 
+                <button
+                    key={idx}
+                    onClick={btn.action}
+                    type="button"
+                    title={btn.label}
+                    className={`flex items-center justify-center w-10 h-10 text-lg rounded-md border transition-all duration-200 
             ${btn.isActive
-                                ? 'bg-blue-600 text-white shadow-lg scale-105'
-                                : 'bg-white text-gray-600 hover:bg-blue-100 hover:text-blue-700'
-                            }`}
-                    >
-                        {btn.icon}
-                    </button>
-                </>
-            ))
-            }
-        </div >
+                            ? 'bg-blue-600 text-white shadow-lg scale-105'
+                            : 'bg-white text-gray-600 hover:bg-blue-100 hover:text-blue-700'
+                        }`}
+                >
+                    {btn.icon}
+                </button>
+            ))}
+        </div>
     );
 };
+
 
 const CreateBlogPage = () => {
     const { showToast } = useToast()
@@ -90,7 +137,12 @@ const CreateBlogPage = () => {
     const categories = ['Career', 'Finance', 'Technology', 'Travel', 'Lifestyle', 'Health'];
 
     const editor = useEditor({
-        extensions: [StarterKit],
+        extensions: [
+            StarterKit,
+            CodeBlock,
+            Blockquote,
+            HorizontalRule,
+        ],
         content: blogData.content,
         onUpdate: ({ editor }) => {
             setBlogData((prev) => ({
@@ -117,6 +169,7 @@ const CreateBlogPage = () => {
 
                 // Generate signed URL for preview
                 const signedUrl = await generateSignedUrl(key);
+                // console.log("Signed URL:", signedUrl);
 
                 // Update blog data
                 setBlogData((prev) => ({
@@ -197,7 +250,7 @@ const CreateBlogPage = () => {
                         </div>
 
                         {/* Image Upload */}
-                        <div className="mb-6">
+                        <div className="hidden mb-6">
                             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                                 Image
                             </label>
@@ -213,12 +266,12 @@ const CreateBlogPage = () => {
                             />
                         </div>
 
-                        <div className="hidden mb-6">
+                        <div className=" mb-6">
                             <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
                             <div className="mt-1 flex items-center space-x-4">
-                                {blogData.image ? (
+                                {blogData.imageUrl ? (
                                     <img
-                                        src={blogData.image}
+                                        src={blogData.imageUrl}
                                         alt="Preview"
                                         className="h-20 w-20 object-cover rounded-md"
                                     />

@@ -8,7 +8,7 @@
 @plugin "daisyui";
 
 
-  @plugin "daisyui/theme" {
+  /* @plugin "daisyui/theme" {
     name: "durai-dark";
     default: true;
     prefersdark: true;
@@ -52,7 +52,7 @@
     --border: 1.5px;
     --depth: 0;
     --noise: 0;
-  }
+  } */
 
   @plugin "daisyui/theme" {
     name: "durai-light";

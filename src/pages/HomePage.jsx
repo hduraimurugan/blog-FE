@@ -3,6 +3,7 @@ import { backendUrl } from '../api/config'
 import axios from 'axios'
 import DOMPurify from "dompurify"
 import { useNavigate } from 'react-router-dom'
+import { generateSignedUrl } from '../utils/aws/aws'
 
 
 const HomePage = () => {
@@ -18,11 +19,23 @@ const HomePage = () => {
             })
 
             const newBlogs = response.data.data
-            const uniqueNewBlogs = newBlogs.filter(
+
+            // Generate signed URLs for each blog image
+            const blogsWithSignedUrls = await Promise.all(
+                newBlogs.map(async (blog) => {
+                    const signedUrl = await generateSignedUrl(blog.image); // assuming blog.image holds the S3 key or path
+                    return {
+                        ...blog,
+                        imageUrl: signedUrl, // add signed URL here
+                    };
+                })
+            );
+
+            const uniqueNewBlogs = blogsWithSignedUrls.filter(
                 (newBlog) => !blogs.some((existingBlog) => existingBlog._id === newBlog._id),
             )
             if (pageToFetch === 1) {
-                setBlogs(newBlogs)
+                setBlogs(blogsWithSignedUrls)
             } else {
                 setBlogs((prevBlogs) => [...prevBlogs, ...uniqueNewBlogs])
             }
@@ -52,13 +65,13 @@ const HomePage = () => {
                         className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer"
                     >
                         <figure className="h-48 bg-base-200">
-                            {/* {blog.image ? (
-                  <img src={blog.image || "/placeholder.svg"} alt={blog.title} className="w-full h-full object-cover" />
-                ) : ( */}
-                            <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                                <span className="text-primary font-semibold">No Image</span>
-                            </div>
-                            {/* )} */}
+                            {blog.imageUrl ? (
+                                <img src={blog.imageUrl || "/placeholder.svg"} alt={blog.title} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                                    <span className="text-primary font-semibold">No Image</span>
+                                </div>
+                            )}
                         </figure>
 
                         <div className="card-body">
@@ -95,11 +108,11 @@ const HomePage = () => {
                 ))}
             </div>
 
-           
+
             <div className="flex justify-center mt-8">
                 <button
                     className="btn btn-primary btn-outline"
-                    onClick={() => navigate("/blogs")}>         
+                    onClick={() => navigate("/blogs")}>
                     Load More Blogs
                 </button>
             </div>

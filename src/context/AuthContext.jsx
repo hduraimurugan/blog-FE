@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import axios from 'axios'
+import { useToast } from './ToastContext'
 
 const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const { showToast } = useToast()
 
   const fetchUser = async () => {
     try {
@@ -16,8 +18,8 @@ export const AuthProvider = ({ children }) => {
       setUser(res.data.user)
       localStorage.setItem('user', JSON.stringify(res.data.user))
     } catch (err) {
-        console.error('Fetch user error:', err)
-      
+        console.error('Fetch user error:', err)  
+        // showToast('User not logged in', 'error')
     } finally {
       setLoading(false)
     }
@@ -33,6 +35,7 @@ export const AuthProvider = ({ children }) => {
       await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`, {}, {
         withCredentials: true,
       })
+      showToast('Logged out successfully', 'success')
     } catch (err) {
       console.error('Logout failed:', err)
     } finally {
