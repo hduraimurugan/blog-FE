@@ -120,11 +120,11 @@ const HomePage = () => {
                     <motion.div
                         key={blog._id}
                         onClick={() => navigateToBlog(blog._id)}
-                        className="card bg-base-100 shadow-xl overflow-hidden cursor-pointer"
+                        className="card bg-base-100 shadow-xl hover:shadow-2xl overflow-hidden cursor-pointer"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4 }}
-                        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.12)" }}
+                        transition={{ duration: 0.1 }}
+                        whileHover={{ scale: 1.02, boxShadow: "0 10px 20px rgba(0,0,0,0.12)" }}
                         whileTap={{ scale: 0.97 }}
                     >
                         <figure className="h-48 bg-base-200">

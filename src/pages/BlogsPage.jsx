@@ -252,10 +252,15 @@ export default function BlogsPage() {
         {/* Blogs Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {blogs.map((blog) => (
-            <div
+            <motion.div
               key={blog._id}
               onClick={() => navigateToBlog(blog._id)}
-              className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer"
+              className="card bg-base-100 shadow-xl hover:shadow-2xl overflow-hidden cursor-pointer"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.1 }}
+              whileHover={{ scale: 1.02, boxShadow: "0 10px 20px rgba(0,0,0,0.12)" }}
+              whileTap={{ scale: 0.97 }}
             >
               <figure className="h-48 bg-base-200">
                 {(blog.imageUrl || blog.image) ? (
@@ -339,7 +344,7 @@ export default function BlogsPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
