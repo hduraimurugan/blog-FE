@@ -17,9 +17,9 @@
 @plugin "daisyui";
 
 
-  /* @plugin "daisyui/theme" {
+  @plugin "daisyui/theme" {
     name: "durai-dark";
-    default: true;
+    default: false;
     prefersdark: true;
     color-scheme: "dark";
 
@@ -61,11 +61,11 @@
     --border: 1.5px;
     --depth: 0;
     --noise: 0;
-  } */
+  }
 
   @plugin "daisyui/theme" {
     name: "durai-light";
-    default: false;
+    default: true;
     prefersdark: true;
     color-scheme: "light";
 

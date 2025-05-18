@@ -128,6 +128,7 @@ const EditBlogPage = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
+    const [submitLoading, setSubmitLoading] = useState(false);
     const [blogData, setBlogData] = useState({
         _id: '',
         title: '',
@@ -253,7 +254,7 @@ const EditBlogPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        setSubmitLoading(true);
         try {
             const res = await axios.put(`${backendUrl}/api/blog/update/${id}`, {
                 ...blogData
@@ -268,7 +269,7 @@ const EditBlogPage = () => {
         } catch (err) {
             showToast(err.response?.data?.msg || 'Failed to update blog', 'error');
         } finally {
-            setLoading(false);
+            setSubmitLoading(false);
         }
     };
 
@@ -432,13 +433,13 @@ const EditBlogPage = () => {
 
                             <button
                                 type="submit"
-                                className={`px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${loading
+                                className={`px-6 py-3 font-semibold rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${submitLoading
                                     ? 'bg-gray-400 cursor-not-allowed'
                                     : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transform hover:-translate-y-0.5'
                                     }`}
-                                disabled={loading}
+                                disabled={submitLoading}
                             >
-                                {loading ? 'Updating...' : ' Update Blog'}
+                                {submitLoading ? 'Updating...' : ' Update Blog'}
                             </button>
                         </div>
                     </form>
