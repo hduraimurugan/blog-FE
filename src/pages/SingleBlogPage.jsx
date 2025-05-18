@@ -24,14 +24,14 @@ import { generateSignedUrl } from "../utils/aws/aws"
 const SingleBlogPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
+  const { user } = useAuth()
+  const { showToast } = useToast()
   const [blog, setBlog] = useState(null)
   const [liked, setLiked] = useState(false)
   const [saved, setSaved] = useState(false)
-  const { user } = useAuth()
-  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [blogToDeleteId, setBlogToDeleteId] = useState(null)
-  const { showToast } = useToast()
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   const fetchBlog = async () => {
     try {
@@ -160,12 +160,12 @@ const SingleBlogPage = () => {
           <img src={blog.imageUrl || "/placeholder.svg"} alt={blog.title} className="w-full h-full object-cover" />
         </div>
       ) : (
-      <div className="w-full h-[40vh] md:h-[50vh] lg:h-[60vh] relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center bg-blue-100 rounded-2xl w-full h-full">
-          <span className="text-primary font-semibold text-lg">No Image Available</span>
+        <div className="w-full h-[40vh] md:h-[50vh] lg:h-[60vh] relative overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center bg-blue-100 rounded-2xl w-full h-full">
+            <span className="text-primary font-semibold text-lg">No Image Available</span>
+          </div>
         </div>
-      </div>
-       )}
+      )}
 
       {/* Blog Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16 -mt-20 relative z-10">
@@ -332,37 +332,34 @@ const SingleBlogPage = () => {
             </div>
           )}
 
-          {showConfirmModal && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-              <div className="modal-box max-w-sm w-full">
-                <h3 className="font-bold text-lg mb-4">Confirm Deletion</h3>
-                <p className="mb-6 text-base-content/70">
-                  Are you sure you want to delete this blog? This action cannot be undone.
-                </p>
-                <div className="modal-action">
-                  <button onClick={() => setShowConfirmModal(false)} className="btn btn-ghost">
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleDelete(blogToDeleteId)
-                      setShowConfirmModal(false)
-                    }}
-                    className="btn btn-error"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* Related Posts Section could be added here */}
 
           {/* Comments Section could be added here */}
         </div>
       </div>
-    </div>
+
+      {showConfirmModal && (
+        <div className="modal modal-open z-[100]">
+          <div className="modal-box max-w-sm w-full">
+            <h3 className="font-bold text-lg mb-4">Confirm Deletion</h3>
+            <p className="mb-6 text-base-content/70">
+              Are you sure you want to delete this blog? This action cannot be undone.
+            </p>
+            <div className="modal-action">
+              <button className="btn btn-ghost" onClick={() => setShowConfirmModal(false)} >Cancel</button>
+              <button className="btn btn-error"
+               onClick={() => {
+                handleDelete(blogToDeleteId)
+                setShowConfirmModal(false)
+              }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )
+      }
+    </div >
   )
 }
 
