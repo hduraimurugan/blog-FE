@@ -3,6 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@import "tailwindcss";
+@plugin "daisyui";
+
+
 @layer components {
   /* Optional: custom component styles here */
 }
@@ -11,11 +16,17 @@
   /* Optional: custom utilities here */
 }
 
-
-
-@import "tailwindcss";
-@plugin "daisyui";
-
+@layer base {
+  html {
+    font-family: 'Poppins', sans-serif;
+    /* font-family: 'Roboto', 'sans-serif'; */
+    /* font-family: 'Montserrat', 'sans-serif'; */
+    /* font-family: '"Playfair Display"', 'serif'; */
+    /* font-family: '"Bonheur Royale"', 'cursive'; */
+    /* font-family: 'Yesteryear', 'cursive'; */
+    /* font-family: 'Lato', 'sans-serif'; */
+  }
+}
 
   @plugin "daisyui/theme" {
     name: "durai-dark";
